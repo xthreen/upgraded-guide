@@ -9,9 +9,9 @@ fn main() -> eframe::Result<()> {
 
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
-        "eframe template",
+        "Functional Rust UI Demo",
         native_options,
-        Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+        Box::new(|cc| Box::new(functional_rust_ui_demo::TemplateApp::new(cc))),
     )
 }
 
@@ -30,7 +30,7 @@ fn main() {
         eframe::start_web(
             "the_canvas_id", // hardcode it
             web_options,
-            Box::new(|cc| Box::new(eframe_template::TemplateApp::new(cc))),
+            Box::new(|cc| Box::new(functional_rust_ui_demo::TemplateApp::new(cc))),
         )
         .await
         .expect("failed to start eframe");
