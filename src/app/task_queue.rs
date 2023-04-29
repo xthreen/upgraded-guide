@@ -32,22 +32,22 @@ pub enum TaskError {
 #[derive(Debug, Clone, PartialEq)]
 pub enum PollingData {
     Float(f32),
-    Tuple((usize, String, f32)),
-    HashMap(HashMap<usize, String>)
+    // Tuple((usize, String, f32)),
+    // HashMap(HashMap<usize, (String, f32)>)
 }
 
 impl Display for PollingData {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
         match self {
             PollingData::Float(float_value) => write!(f, "{}", float_value),
-            PollingData::Tuple((id, name, progress)) => write!(f, "({}, {}, {})", id, name, progress),
-            PollingData::HashMap(map) => {
-                let mut s = String::new();
-                for (id, name) in map {
-                    s.push_str(&format!("({}, {}), ", id, name));
-                }
-                write!(f, "{}", s)
-            }
+            // PollingData::Tuple((id, name, progress)) => write!(f, "({}, {}, {})", id, name, progress),
+            // PollingData::HashMap(map) => {
+            //     let mut s = String::new();
+            //     for (id, data) in map {
+            //         s.push_str(&format!("({}, ({}, {})), ", id, data.0, data.1));
+            //     }
+            //     write!(f, "{}", s)
+            // }
         }
     }
 }
@@ -102,7 +102,7 @@ impl TaskQueue {
         }
     }
 
-    pub fn remove_task(&self, id: usize) -> Result<(), TaskError> {
+    pub fn _remove_task(&self, id: usize) -> Result<(), TaskError> {
         match self.tasks.lock().unwrap().remove(&id) {
             Some(_) => Ok(()),
             None => Err(TaskError::NotFound),
@@ -369,14 +369,14 @@ mod tests {
         let task_queue = TaskQueue::new();
         let task = SleepTask::new(0, Duration::from_millis(100));
         let task_id = task_queue.add_task(task);
-        let remove_result = task_queue.remove_task(task_id);
+        let remove_result = task_queue._remove_task(task_id);
         assert!(remove_result.is_ok());
     }
 
     #[test]
     fn test_remove_non_existent_task() {
         let task_queue = TaskQueue::new();
-        let remove_result = task_queue.remove_task(0);
+        let remove_result = task_queue._remove_task(0);
         assert_eq!(remove_result.unwrap_err(), TaskError::NotFound);
     }
 }
