@@ -356,7 +356,10 @@ mod tests {
         let poll_result = task_queue.poll_task(task_id);
         match poll_result {
             Ok(PollResult::Pending(PollingData::Float(progress))) => {
-                assert!(progress >= 0.0 && progress <= 1.0, "Progress should be a float between 0.0 and 1.0");
+                assert!(
+                    progress >= 0.0 && progress <= 1.0,
+                    "Progress should be a float between 0.0 and 1.0"
+                );
             }
             _ => {
                 panic!("Expected PollResult::Pending");
