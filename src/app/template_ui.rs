@@ -90,14 +90,6 @@ impl eframe::App for TemplateApp {
 
         egui::Window::new("Main Window").show(ctx, |ui| {
             // Main window content goes here
-            egui::menu::bar(ui, |ui| {
-                ui.menu_button("File", |ui| {
-                    if ui.button("Quit").clicked() {
-                        _frame.close();
-                    }
-                });
-            });
-
             let progress_bar = egui::ProgressBar::new(self.task_progress)
                 .desired_width(_frame.info().window_info.size.x - 256.0)
                 .fill(egui::Color32::LIGHT_GREEN);
