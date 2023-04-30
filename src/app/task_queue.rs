@@ -91,7 +91,12 @@ impl TaskQueue {
     }
 
     pub fn poll_task(&self, id: usize) -> Result<PollResult, TaskError> {
-        match self.tasks.lock().expect("Panicked at poll_task: Tasks mutex poisoned").get_mut(&id) {
+        match self
+            .tasks
+            .lock()
+            .expect("Panicked at poll_task: Tasks mutex poisoned")
+            .get_mut(&id)
+        {
             Some(task) => {
                 let mut guard = task.lock().unwrap();
                 Ok(guard.poll())
@@ -101,7 +106,12 @@ impl TaskQueue {
     }
 
     pub fn remove_task(&self, id: usize) -> Result<(), TaskError> {
-        match self.tasks.lock().expect("Panicked at remove_task: Tasks mutex poisoned").get_mut(&id) {
+        match self
+            .tasks
+            .lock()
+            .expect("Panicked at remove_task: Tasks mutex poisoned")
+            .get_mut(&id)
+        {
             Some(task) => {
                 let mut guard = task.lock().unwrap();
                 guard.cancel()
@@ -116,10 +126,15 @@ impl TaskQueue {
     }
 
     pub fn pause_task(&self, id: usize) -> Result<(), TaskError> {
-        let tasks = self.tasks.lock().expect("Panicked at pause_task: Tasks mutex poisoned");
+        let tasks = self
+            .tasks
+            .lock()
+            .expect("Panicked at pause_task: Tasks mutex poisoned");
         match tasks.get(&id) {
             Some(task) => {
-                let mut guard = task.lock().expect("Panicked unwrapping task to pause: Task mutex poisoned");
+                let mut guard = task
+                    .lock()
+                    .expect("Panicked unwrapping task to pause: Task mutex poisoned");
                 guard.pause()
             }
             None => {
@@ -130,10 +145,15 @@ impl TaskQueue {
     }
 
     pub fn resume_task(&self, id: usize) -> Result<(), TaskError> {
-        let tasks = self.tasks.lock().expect("Panicked at resume_task: Tasks mutex poisoned");
+        let tasks = self
+            .tasks
+            .lock()
+            .expect("Panicked at resume_task: Tasks mutex poisoned");
         match tasks.get(&id) {
             Some(task) => {
-                let mut guard = task.lock().expect("Panicked unwrapping task to resume: Task mutex poisoned");
+                let mut guard = task
+                    .lock()
+                    .expect("Panicked unwrapping task to resume: Task mutex poisoned");
                 guard.resume()
             }
             None => {

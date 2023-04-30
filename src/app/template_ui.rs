@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use crate::app::task_queue::{PollResult, PollingData, TaskQueue};
 use crate::app::sleep_task::SleepTask;
+use crate::app::task_queue::{PollResult, PollingData, TaskQueue};
 
 // fn prog_check(prog: f32) -> bool {
 //     prog > 0.0 && prog < 1.0

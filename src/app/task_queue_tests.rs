@@ -1,5 +1,5 @@
 #[cfg(test)]
-use crate::app::task_queue::{PollingData, PollResult, TaskQueue, TaskError};
+use crate::app::task_queue::{PollResult, PollingData, TaskError, TaskQueue};
 use env_logger;
 
 fn _setup_logging() {
