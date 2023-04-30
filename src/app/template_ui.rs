@@ -128,7 +128,7 @@ impl eframe::App for TemplateApp {
                                                 }
                                                 if ui.button("Cancel").clicked() {
                                                     if let Err(r) =
-                                                        self.task_queue._remove_task(*task_id)
+                                                        self.task_queue.remove_task(*task_id)
                                                     {
                                                         log::error!(
                                                             "Task {} cancellation error: {:?}",
@@ -179,7 +179,7 @@ impl eframe::App for TemplateApp {
                                                 }
                                                 if ui.button("Cancel").clicked() {
                                                     if let Err(r) =
-                                                        self.task_queue._remove_task(*task_id)
+                                                        self.task_queue.remove_task(*task_id)
                                                     {
                                                         log::error!(
                                                             "Task {} cancellation error: {:?}",
@@ -199,7 +199,7 @@ impl eframe::App for TemplateApp {
 
                         if ui.button("Cancel all tasks").clicked() {
                             for task_id in &self.task_ids {
-                                if let Err(r) = self.task_queue._remove_task(*task_id) {
+                                if let Err(r) = self.task_queue.remove_task(*task_id) {
                                     log::error!("Task {} cancellation error: {:?}", task_id, r);
                                 } else {
                                     log::info!("Task {} cancelled", task_id);

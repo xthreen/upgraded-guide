@@ -75,7 +75,7 @@ fn test_remove_task() {
     let task_queue = TaskQueue::new();
     let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(100));
     let task_id = task_queue.add_task(task);
-    let remove_result = task_queue._remove_task(task_id);
+    let remove_result = task_queue.remove_task(task_id);
     assert!(remove_result.is_ok());
 }
 
@@ -87,14 +87,14 @@ fn test_remove_polled_task() {
     let task_id = task_queue.add_task(task);
     let poll_result = task_queue.poll_task(task_id);
     assert!(poll_result.is_ok());
-    let remove_result = task_queue._remove_task(task_id);
+    let remove_result = task_queue.remove_task(task_id);
     assert!(remove_result.is_ok());
 }
 
 #[test]
 fn test_remove_non_existent_task() {
     let task_queue = TaskQueue::new();
-    let remove_result = task_queue._remove_task(0);
+    let remove_result = task_queue.remove_task(0);
     assert_eq!(remove_result.unwrap_err(), TaskError::NotFound);
 }
 
