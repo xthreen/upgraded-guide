@@ -157,7 +157,6 @@ impl TaskQueue {
                     .expect("Panicked unwrapping task to resume: Task mutex poisoned");
                 log::debug!("Resumed task {}", &id);
                 guard.resume()
-                
             }
             None => {
                 log::error!("Task not found: {}", id);
