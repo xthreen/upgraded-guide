@@ -145,6 +145,7 @@ impl TaskQueue {
     }
 
     pub fn resume_task(&self, id: usize) -> Result<(), TaskError> {
+        log::debug!("Resume requested for {}", &id);
         let tasks = self
             .tasks
             .lock()
@@ -154,7 +155,9 @@ impl TaskQueue {
                 let mut guard = task
                     .lock()
                     .expect("Panicked unwrapping task to resume: Task mutex poisoned");
+                log::debug!("Resumed task {}", &id);
                 guard.resume()
+                
             }
             None => {
                 log::error!("Task not found: {}", id);

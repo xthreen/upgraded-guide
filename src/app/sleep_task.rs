@@ -78,7 +78,7 @@ impl Task for SleepTask {
                 let paused_duration = self.paused_duration.lock().unwrap();
                 if let Some(time) = *start_time {
                     if paused_duration.clone() > Duration::from_secs(0) {
-                        log::info!(
+                        log::debug!(
                             "paused_duration: {:?}, elapsed_time: {:?}",
                             paused_duration,
                             self.elapsed_time
@@ -104,7 +104,7 @@ impl Task for SleepTask {
             TaskStatus::Paused => {
                 debug!("SleepTask::poll() - Paused");
                 let paused_duration = self.paused_duration.lock().unwrap();
-                log::info!(
+                log::debug!(
                     "paused task {} paused_duration: {:?}",
                     self.id(),
                     paused_duration
@@ -141,10 +141,10 @@ impl Task for SleepTask {
                 Ok(())
             }
             TaskStatus::Paused => {
-                // {
-                //     let mut status_guard = self.status.lock().unwrap();
-                //     *status_guard = TaskStatus::Paused;
-                // }
+                {
+                    let mut status_guard = self.status.lock().unwrap();
+                    *status_guard = TaskStatus::Cancelled;
+                }
                 Ok(())
             }
             TaskStatus::Completed => Err(TaskError::AlreadyCompleted),
@@ -171,7 +171,7 @@ impl Task for SleepTask {
                     let paused_at = Instant::now();
                     let start_time = self.start_time.lock().unwrap();
                     let diff = paused_at.duration_since(start_time.unwrap());
-                    log::info!("pausing task {}", self.id());
+                    log::debug!("pausing task {}", self.id());
                     let mut paused_duration_guard = self.paused_duration.lock().unwrap();
                     *paused_duration_guard = diff;
                 }
