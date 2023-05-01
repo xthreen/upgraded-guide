@@ -29,6 +29,10 @@ impl SleepTask {
             paused_duration: sync_Arc::new(sync_Mutex::new(Duration::from_secs(0))),
         }
     }
+
+    pub fn kind(&self) -> &str {
+        "SleepTask"
+    }
 }
 
 impl Task for SleepTask {
@@ -77,9 +81,10 @@ impl Task for SleepTask {
                 let start_time = self.start_time.lock().unwrap();
                 let paused_duration = self.paused_duration.lock().unwrap();
                 if let Some(time) = *start_time {
-                    if paused_duration.clone() > Duration::from_secs(0) {
+                    if *paused_duration > Duration::from_secs(0) {
                         log::debug!(
-                            "paused_duration: {:?}, elapsed_time: {:?}",
+                            "{}: paused_duration: {:?}, elapsed_time: {:?}",
+                            self.kind(),
                             paused_duration,
                             self.elapsed_time
                         );
@@ -105,7 +110,8 @@ impl Task for SleepTask {
                 debug!("SleepTask::poll() - Paused");
                 let paused_duration = self.paused_duration.lock().unwrap();
                 log::debug!(
-                    "paused task {} paused_duration: {:?}",
+                    "{}: paused task {} paused_duration: {:?}",
+                    self.kind(),
                     self.id(),
                     paused_duration
                 );
@@ -171,7 +177,7 @@ impl Task for SleepTask {
                     let paused_at = Instant::now();
                     let start_time = self.start_time.lock().unwrap();
                     let diff = paused_at.duration_since(start_time.unwrap());
-                    log::debug!("pausing task {}", self.id());
+                    log::debug!("pausing {} task {}", self.kind(), self.id());
                     let mut paused_duration_guard = self.paused_duration.lock().unwrap();
                     *paused_duration_guard = diff;
                 }

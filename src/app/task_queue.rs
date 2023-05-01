@@ -118,11 +118,6 @@ impl TaskQueue {
             }
             None => Err(TaskError::NotFound),
         }
-        // dropping the task handle will cause the task to be cancelled
-        // match self.tasks.lock().unwrap().remove(&id) {
-        //     Some(_) => Ok(()),
-        //     None => Err(TaskError::NotFound),
-        // }
     }
 
     pub fn pause_task(&self, id: usize) -> Result<(), TaskError> {
@@ -172,7 +167,7 @@ impl TaskQueue {
                 debug!("matched Some(task) with id: {}", id);
                 let task_clone = task.clone();
                 let (tx, rx) = channel::bounded(1);
-                let tx_clone = tx.clone();
+                let tx_clone = tx;
                 task::spawn(async move {
                     let mut guard = task_clone.lock().unwrap();
                     loop {
@@ -196,7 +191,8 @@ impl TaskQueue {
                             }
                         }
                     }
-                    let _ = tx_clone.send(());
+                    let send = tx_clone.send(());
+                    drop(send);
                 });
 
                 Ok(rx)

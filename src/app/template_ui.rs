@@ -179,11 +179,9 @@ impl eframe::App for TemplateApp {
                                     },
                                     PollResult::Completed => {
                                         log::debug!("Task {} completed", task_id);
-                                        drop(*task_id)
                                     }
                                     PollResult::Cancelled => {
                                         log::debug!("Task {} cancelled", task_id);
-                                        drop(*task_id)
                                     }
                                     PollResult::Paused(progress) => match progress {
                                         PollingData::Float(p) => {
