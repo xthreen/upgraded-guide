@@ -11,11 +11,13 @@ use async_std::task;
 use log::debug;
 
 pub trait Task: Send + Sync {
-    fn id(&self) -> usize;
+    fn id(&self) -> Result<usize, TaskError>;
+    fn set_id(&mut self, id: usize);
     fn poll(&mut self) -> PollResult;
     fn cancel(&mut self) -> Result<(), TaskError>;
     fn pause(&mut self) -> Result<(), TaskError>;
     fn resume(&mut self) -> Result<(), TaskError>;
+    fn kind(&self) -> TaskKind;
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -25,6 +27,24 @@ pub enum TaskError {
     AlreadyPaused,
     AlreadyCancelled,
     AlreadyCompleted,
+    IdUsizeIsNone,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum TaskKind {
+    Sleep,
+    // Download,
+    // Process,
+}
+
+impl Display for TaskKind {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        match self {
+            TaskKind::Sleep => write!(f, "Sleep task"),
+            // TaskKind::Download => write!(f, "Download task"),
+            // TaskKind::Process => write!(f, "Process task"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -80,8 +100,9 @@ impl TaskQueue {
         }
     }
 
-    pub fn add_task<T: Task + Send + 'static>(&self, task: T) -> usize {
+    pub fn add_task<T: Task + Send + 'static>(&self, mut task: T) -> usize {
         let id = self.next_id.fetch_add(1, Ordering::SeqCst);
+        task.set_id(id);
         self.tasks
             .lock()
             .expect("Panicked at add_task: Tasks mutex poisoned")

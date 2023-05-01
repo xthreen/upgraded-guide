@@ -93,7 +93,7 @@ impl eframe::App for TemplateApp {
                     self.value += 1.0;
                 }
                 if ui.button("Add task").clicked() {
-                    let task = SleepTask::new(0, Duration::from_secs(self.value.ceil() as u64));
+                    let task = SleepTask::new(None, Duration::from_secs(self.value.ceil() as u64));
                     let task_id = self.task_queue.add_task(task);
                     self.task_ids.push(task_id);
                 }

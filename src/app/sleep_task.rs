@@ -5,10 +5,10 @@ use std::time::{Duration, Instant};
 
 use crate::app::task_queue::PollingData;
 
-use super::task_queue::{PollResult, Task, TaskError, TaskStatus};
+use super::task_queue::{PollResult, Task, TaskError, TaskKind, TaskStatus};
 
 pub struct SleepTask {
-    id: usize,
+    id: Option<usize>,
     duration: Duration,
     status: sync_Arc<sync_Mutex<TaskStatus>>,
     handle: Option<JoinHandle<()>>,
@@ -18,26 +18,46 @@ pub struct SleepTask {
 }
 
 impl SleepTask {
-    pub fn new(id: usize, duration: Duration) -> Self {
-        SleepTask {
-            id,
-            duration,
-            status: sync_Arc::new(sync_Mutex::new(TaskStatus::Queued)),
-            handle: None,
-            start_time: sync_Arc::new(sync_Mutex::new(None)),
-            elapsed_time: Duration::from_secs(0),
-            paused_duration: sync_Arc::new(sync_Mutex::new(Duration::from_secs(0))),
+    pub fn new(id: Option<usize>, duration: Duration) -> Self {
+        match id {
+            Some(id) => {
+                debug!("SleepTask::new() - id: {}", &id);
+                SleepTask {
+                    id: Some(id),
+                    duration,
+                    status: sync_Arc::new(sync_Mutex::new(TaskStatus::Queued)),
+                    handle: None,
+                    start_time: sync_Arc::new(sync_Mutex::new(None)),
+                    elapsed_time: Duration::from_secs(0),
+                    paused_duration: sync_Arc::new(sync_Mutex::new(Duration::from_secs(0))),
+                }
+            }
+            None => {
+                debug!("SleepTask::new() - id: None");
+                SleepTask {
+                    id: None,
+                    duration,
+                    status: sync_Arc::new(sync_Mutex::new(TaskStatus::Queued)),
+                    handle: None,
+                    start_time: sync_Arc::new(sync_Mutex::new(None)),
+                    elapsed_time: Duration::from_secs(0),
+                    paused_duration: sync_Arc::new(sync_Mutex::new(Duration::from_secs(0))),
+                }
+            }
         }
-    }
-
-    pub fn kind(&self) -> &str {
-        "SleepTask"
     }
 }
 
 impl Task for SleepTask {
-    fn id(&self) -> usize {
-        self.id
+    fn id(&self) -> Result<usize, TaskError> {
+        match self.id {
+            Some(id) => Ok(id),
+            None => Err(TaskError::IdUsizeIsNone),
+        }
+    }
+
+    fn set_id(&mut self, id: usize) {
+        self.id = Some(id);
     }
 
     fn poll(self: &mut SleepTask) -> PollResult {
@@ -112,7 +132,9 @@ impl Task for SleepTask {
                 log::debug!(
                     "{}: paused task {} paused_duration: {:?}",
                     self.kind(),
-                    self.id(),
+                    self.id().expect(
+                        "SleepTask::poll() - Paused task has no id. This should never happen."
+                    ),
                     paused_duration
                 );
                 let progress = paused_duration.as_secs_f32() / self.duration.as_secs_f32();
@@ -177,7 +199,13 @@ impl Task for SleepTask {
                     let paused_at = Instant::now();
                     let start_time = self.start_time.lock().unwrap();
                     let diff = paused_at.duration_since(start_time.unwrap());
-                    log::debug!("pausing {} task {}", self.kind(), self.id());
+                    log::debug!(
+                        "pausing {} task {}",
+                        self.kind(),
+                        self.id().expect(
+                            "SleepTask::pause() - Paused task has no id. This should never happen."
+                        )
+                    );
                     let mut paused_duration_guard = self.paused_duration.lock().unwrap();
                     *paused_duration_guard = diff;
                 }
@@ -208,5 +236,9 @@ impl Task for SleepTask {
             TaskStatus::Completed => Err(TaskError::AlreadyCompleted),
             TaskStatus::Cancelled => Err(TaskError::AlreadyCancelled),
         }
+    }
+
+    fn kind(self: &SleepTask) -> TaskKind {
+        TaskKind::Sleep
     }
 }

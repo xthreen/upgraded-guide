@@ -10,7 +10,8 @@ fn _setup_logging() {
 #[test]
 fn test_add_task() {
     let task_queue = TaskQueue::new();
-    let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(100));
+    let task =
+        crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(100));
     let task_id = task_queue.add_task(task);
     assert_eq!(task_id, 0);
 }
@@ -20,7 +21,8 @@ fn test_sleep_task_completion() {
     _setup_logging();
     async_std::task::block_on(async {
         let task_queue = TaskQueue::new();
-        let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(100));
+        let task =
+            crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(100));
         let task_id = task_queue.add_task(task);
 
         let rx = task_queue._get_task(task_id).unwrap();
@@ -39,10 +41,12 @@ fn test_sleep_task_completion() {
 fn test_add_multiple_tasks() {
     let task_queue = TaskQueue::new();
 
-    let task_one = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_secs(2));
+    let task_one =
+        crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_secs(2));
     let task_one_id = task_queue.add_task(task_one);
 
-    let task_two = crate::app::sleep_task::SleepTask::new(1, std::time::Duration::from_secs(2));
+    let task_two =
+        crate::app::sleep_task::SleepTask::new(Some(1), std::time::Duration::from_secs(2));
     let task_two_id = task_queue.add_task(task_two);
 
     assert_eq!(task_one_id, 0);
@@ -52,7 +56,8 @@ fn test_add_multiple_tasks() {
 #[test]
 fn test_poll_task() {
     let task_queue = TaskQueue::new();
-    let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(100));
+    let task =
+        crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(100));
     let task_id = task_queue.add_task(task);
     let poll_result = task_queue.poll_task(task_id);
     match poll_result {
@@ -72,7 +77,8 @@ fn test_poll_task() {
 fn test_remove_task() {
     _setup_logging();
     let task_queue = TaskQueue::new();
-    let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(100));
+    let task =
+        crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(100));
     let task_id = task_queue.add_task(task);
     let remove_result = task_queue.remove_task(task_id);
     assert!(remove_result.is_ok());
@@ -82,7 +88,8 @@ fn test_remove_task() {
 fn test_remove_polled_task() {
     _setup_logging();
     let task_queue = TaskQueue::new();
-    let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(200));
+    let task =
+        crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(200));
     let task_id = task_queue.add_task(task);
     let poll_result = task_queue.poll_task(task_id);
     assert!(poll_result.is_ok());
@@ -102,7 +109,8 @@ fn test_pause_and_resume() {
     _setup_logging();
     async_std::task::block_on(async {
         let task_queue = TaskQueue::new();
-        let task = crate::app::sleep_task::SleepTask::new(0, std::time::Duration::from_millis(500));
+        let task =
+            crate::app::sleep_task::SleepTask::new(Some(0), std::time::Duration::from_millis(500));
         let task_id = task_queue.add_task(task);
 
         let poll_result = task_queue.poll_task(task_id).unwrap();
@@ -140,7 +148,7 @@ fn test_pause_and_resume() {
         let resume_result = task_queue.resume_task(task_id);
         assert!(resume_result.is_ok());
 
-        async_std::task::sleep(std::time::Duration::from_millis(300)).await;
+        async_std::task::sleep(std::time::Duration::from_millis(500)).await;
 
         let poll_result = task_queue.poll_task(task_id).unwrap();
         assert_eq!(poll_result, PollResult::Completed);
