@@ -12,6 +12,7 @@ use crate::app::task_queue::{PollResult, PollingData, TaskQueue};
 pub struct TemplateApp {
     label: String,
     show_footer: bool,
+    show_header: bool,
     #[serde(skip)]
     task_queue: TaskQueue,
     #[serde(skip)]
@@ -25,6 +26,7 @@ impl Default for TemplateApp {
         Self {
             label: "Task Queue UI".to_owned(),
             show_footer: false,
+            show_header: true,
             task_queue: TaskQueue::new(),
             task_ids: Vec::new(),
             value: 1.0,
@@ -39,6 +41,17 @@ impl TemplateApp {
         }
 
         Default::default()
+    }
+
+    fn ui_menubar(&mut self, ui: &mut egui::Ui) {
+        egui::menu::bar(ui, |ui| {
+            ui.separator();
+            ui.menu_button("Options", |ui| {
+                ui.checkbox(&mut self.show_header, "Show header");
+                ui.checkbox(&mut self.show_footer, "Show footer");
+            });
+            ui.separator();
+        });
     }
 }
 
@@ -55,6 +68,14 @@ impl eframe::App for TemplateApp {
         //         _frame.info().window_info.size.y - 420.0,
         //     ))
         //     .show(ctx, |ui| {});
+        egui::TopBottomPanel::top("header_panel").show_animated(ctx, self.show_header, |ui| {
+            TemplateApp::ui_menubar(self, ui);
+            ui.separator();
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
+                ui.label("Task Queue UI");
+            });
+        });
         egui::TopBottomPanel::bottom("footer_panel").show_animated(ctx, self.show_footer, |ui| {
             ui.with_layout(egui::Layout::bottom_up(egui::Align::LEFT), |ui| {
                 egui::warn_if_debug_build(ui);
@@ -73,21 +94,17 @@ impl eframe::App for TemplateApp {
         });
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            egui::menu::bar(ui, |ui| {
-                ui.separator();
-                ui.menu_button("Options", |ui| {
-                    ui.checkbox(&mut self.show_footer, "Show footer");
-                });
-                ui.separator();
-            });
+            if !self.show_header {
+                TemplateApp::ui_menubar(self, ui);
+            }
             ui.separator();
             ui.heading("Controls");
             ui.group(|ui| {
-                ui.horizontal(|ui| {
-                    ui.label("Select a content type: ");
-                    ui.text_edit_singleline(&mut self.label.to_string());
-                });
-                ui.separator();
+                // ui.horizontal(|ui| {
+                //     ui.label("Select a content type: ");
+                //     ui.text_edit_singleline(&mut self.label.to_string());
+                // });
+                // ui.separator();
                 ui.add(egui::Slider::new(&mut self.value, 1.0..=10.0).text("value"));
                 if ui.button("Increment").clicked() {
                     self.value += 1.0;
