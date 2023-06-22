@@ -63,7 +63,7 @@ fn test_poll_task() {
     match poll_result {
         Ok(PollResult::Pending(PollingData::Float(progress))) => {
             assert!(
-                progress >= 0.0 && progress <= 1.0,
+                (0.0..1.0).contains(&progress),
                 "Progress should be a float between 0.0 and 1.0"
             );
         }
@@ -125,7 +125,7 @@ fn test_pause_and_resume() {
         match poll_result {
             PollResult::Paused(PollingData::Float(progress)) => {
                 assert!(
-                    progress >= 0.0 && progress <= 1.0,
+                    (0.0..1.0).contains(&progress),
                     "Progress should be a float between 0.0 and 1.0"
                 )
             }

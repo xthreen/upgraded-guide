@@ -102,7 +102,7 @@ impl Task for SleepTask {
                 let paused_duration = self.paused_duration.lock().unwrap();
                 if let Some(time) = *start_time {
                     if *paused_duration > Duration::from_secs(0) {
-                        log::debug!(
+                        debug!(
                             "{}: paused_duration: {:?}, elapsed_time: {:?}",
                             self.kind(),
                             paused_duration,
@@ -129,7 +129,7 @@ impl Task for SleepTask {
             TaskStatus::Paused => {
                 debug!("SleepTask::poll() - Paused");
                 let paused_duration = self.paused_duration.lock().unwrap();
-                log::debug!(
+                debug!(
                     "{}: paused task {} paused_duration: {:?}",
                     self.kind(),
                     self.id().expect(
@@ -199,7 +199,7 @@ impl Task for SleepTask {
                     let paused_at = Instant::now();
                     let start_time = self.start_time.lock().unwrap();
                     let diff = paused_at.duration_since(start_time.unwrap());
-                    log::debug!(
+                    debug!(
                         "pausing {} task {}",
                         self.kind(),
                         self.id().expect(

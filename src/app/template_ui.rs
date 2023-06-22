@@ -3,10 +3,6 @@ use std::time::Duration;
 use crate::app::sleep_task::SleepTask;
 use crate::app::task_queue::{PollResult, PollingData, TaskQueue};
 
-// fn prog_check(prog: f32) -> bool {
-//     prog > 0.0 && prog < 1.0
-// }
-
 #[derive(serde::Deserialize, serde::Serialize)]
 #[serde(default)]
 pub struct TemplateApp {
@@ -56,18 +52,7 @@ impl TemplateApp {
 }
 
 impl eframe::App for TemplateApp {
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, self);
-    }
-
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        // egui::Window::new("Controls Window")
-        //     .constrain(true)
-        //     .fixed_size((
-        //         _frame.info().window_info.size.x - 16.0,
-        //         _frame.info().window_info.size.y - 420.0,
-        //     ))
-        //     .show(ctx, |ui| {});
         egui::TopBottomPanel::top("header_panel").show_animated(ctx, self.show_header, |ui| {
             TemplateApp::ui_menubar(self, ui);
             ui.separator();
@@ -100,11 +85,6 @@ impl eframe::App for TemplateApp {
             ui.separator();
             ui.heading("Controls");
             ui.group(|ui| {
-                // ui.horizontal(|ui| {
-                //     ui.label("Select a content type: ");
-                //     ui.text_edit_singleline(&mut self.label.to_string());
-                // });
-                // ui.separator();
                 ui.add(egui::Slider::new(&mut self.value, 1.0..=10.0).text("value"));
                 if ui.button("Increment").clicked() {
                     self.value += 1.0;
@@ -116,14 +96,15 @@ impl eframe::App for TemplateApp {
                 }
             });
             ui.separator();
+
             ui.heading(format!(
                 "Currently tracking {} tasks...",
                 self.task_ids.len()
             ));
             ui.separator();
-            // Main window content goes here
+
             egui::ScrollArea::vertical()
-                .always_show_scroll(true)
+                .drag_to_scroll(true)
                 .max_height(_frame.info().window_info.size.y - 100.0)
                 .auto_shrink([false, true])
                 .show(ui, |ui| {
@@ -248,5 +229,9 @@ impl eframe::App for TemplateApp {
                 });
         });
         ctx.request_repaint_after(Duration::from_millis(16));
+    }
+
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, self);
     }
 }
